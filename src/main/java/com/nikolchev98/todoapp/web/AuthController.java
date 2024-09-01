@@ -1,7 +1,9 @@
 package com.nikolchev98.todoapp.web;
 
+import com.nikolchev98.todoapp.domain.dtos.AuthResponseDto;
 import com.nikolchev98.todoapp.domain.dtos.LoginDto;
 import com.nikolchev98.todoapp.domain.dtos.RegisterDto;
+import com.nikolchev98.todoapp.security.JWTGenerator;
 import com.nikolchev98.todoapp.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +28,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public AuthController(AuthService authService, AuthenticationManager authenticationManager) {
+    public AuthController(AuthService authService, AuthenticationManager authenticationManager, JWTGenerator jwtGenerator) {
         this.authService = authService;
         this.authenticationManager = authenticationManager;
     }
@@ -49,13 +51,12 @@ public class AuthController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<String> login(@RequestBody @Valid LoginDto loginDto) {
+    public ResponseEntity<AuthResponseDto> login(@RequestBody @Valid LoginDto loginDto) {
         try {
-            this.authService.login(loginDto);
-            return new ResponseEntity<>("Successfully signed in.", HttpStatus.OK);
+            return new ResponseEntity<>(this.authService.login(loginDto), HttpStatus.OK);
 
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
 }

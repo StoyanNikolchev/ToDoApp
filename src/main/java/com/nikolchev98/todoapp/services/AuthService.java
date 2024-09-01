@@ -1,11 +1,13 @@
 package com.nikolchev98.todoapp.services;
 
+import com.nikolchev98.todoapp.domain.dtos.AuthResponseDto;
 import com.nikolchev98.todoapp.domain.dtos.LoginDto;
 import com.nikolchev98.todoapp.domain.dtos.RegisterDto;
 import com.nikolchev98.todoapp.domain.entities.Role;
 import com.nikolchev98.todoapp.domain.entities.UserEntity;
 import com.nikolchev98.todoapp.repositories.RoleRepository;
 import com.nikolchev98.todoapp.repositories.UserRepository;
+import com.nikolchev98.todoapp.security.JWTGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,13 +28,15 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final AuthenticationManager authenticationManager;
+    private final JWTGenerator jwtGenerator;
 
     @Autowired
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, AuthenticationManager authenticationManager) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, AuthenticationManager authenticationManager, JWTGenerator jwtGenerator) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.authenticationManager = authenticationManager;
+        this.jwtGenerator = jwtGenerator;
     }
 
     public ResponseEntity<String> register(RegisterDto registerDto) {
@@ -57,7 +61,7 @@ public class AuthService {
         return new ResponseEntity<>("Successfully registered new user.", HttpStatus.OK);
     }
 
-    public void login(LoginDto loginDto) {
+    public AuthResponseDto login(LoginDto loginDto) {
         UserEntity user = this.userRepository
                 .findByUsername(loginDto.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found."));
@@ -69,5 +73,7 @@ public class AuthService {
         Authentication authentication = this.authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = jwtGenerator.generateToken(authentication);
+        return new AuthResponseDto(token);
     }
 }
