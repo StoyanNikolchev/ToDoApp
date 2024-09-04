@@ -18,7 +18,7 @@ public class JWTGenerator {
     public String generateToken(Authentication authentication) {
         String username = authentication.getName();
         Date currentDate = new Date();
-        long jwtExpiration = 70000;
+        long jwtExpiration = 300000;
         Date expiryDate = new Date(currentDate.getTime() + jwtExpiration);
 
         return Jwts.builder()

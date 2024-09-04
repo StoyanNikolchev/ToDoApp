@@ -1,8 +1,8 @@
 package com.nikolchev98.todoapp.web;
 
-import com.nikolchev98.todoapp.domain.dtos.AuthResponseDto;
-import com.nikolchev98.todoapp.domain.dtos.LoginDto;
-import com.nikolchev98.todoapp.domain.dtos.RegisterDto;
+import com.nikolchev98.todoapp.domain.dtos.responses.AuthResponseDto;
+import com.nikolchev98.todoapp.domain.dtos.imports.LoginFormDto;
+import com.nikolchev98.todoapp.domain.dtos.imports.RegisterFormDto;
 import com.nikolchev98.todoapp.security.JWTGenerator;
 import com.nikolchev98.todoapp.services.AuthService;
 import jakarta.validation.Valid;
@@ -25,17 +25,15 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
-    private final AuthenticationManager authenticationManager;
 
     @Autowired
     public AuthController(AuthService authService, AuthenticationManager authenticationManager, JWTGenerator jwtGenerator) {
         this.authService = authService;
-        this.authenticationManager = authenticationManager;
     }
 
 
     @PostMapping("register")
-    public ResponseEntity<?> register(@RequestBody @Valid RegisterDto registerDto,
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterFormDto registerFormDto,
                                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
@@ -47,13 +45,13 @@ public class AuthController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
 
-        return this.authService.register(registerDto);
+        return this.authService.register(registerFormDto);
     }
 
     @PostMapping("login")
-    public ResponseEntity<AuthResponseDto> login(@RequestBody @Valid LoginDto loginDto) {
+    public ResponseEntity<AuthResponseDto> login(@RequestBody @Valid LoginFormDto loginFormDto) {
         try {
-            return new ResponseEntity<>(this.authService.login(loginDto), HttpStatus.OK);
+            return new ResponseEntity<>(this.authService.login(loginFormDto), HttpStatus.OK);
 
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

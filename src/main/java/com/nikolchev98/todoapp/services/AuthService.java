@@ -1,8 +1,9 @@
 package com.nikolchev98.todoapp.services;
 
-import com.nikolchev98.todoapp.domain.dtos.AuthResponseDto;
-import com.nikolchev98.todoapp.domain.dtos.LoginDto;
-import com.nikolchev98.todoapp.domain.dtos.RegisterDto;
+import com.nikolchev98.todoapp.domain.dtos.responses.AuthResponseDto;
+import com.nikolchev98.todoapp.domain.dtos.imports.LoginFormDto;
+import com.nikolchev98.todoapp.domain.dtos.imports.RegisterFormDto;
+import com.nikolchev98.todoapp.domain.dtos.responses.RegisterResponseDto;
 import com.nikolchev98.todoapp.domain.entities.Role;
 import com.nikolchev98.todoapp.domain.entities.UserEntity;
 import com.nikolchev98.todoapp.repositories.RoleRepository;
@@ -39,39 +40,39 @@ public class AuthService {
         this.jwtGenerator = jwtGenerator;
     }
 
-    public ResponseEntity<String> register(RegisterDto registerDto) {
+    public ResponseEntity<?> register(RegisterFormDto registerFormDto) {
 
-        if (this.userRepository.existsByUsername(registerDto.getUsername())) {
+        if (this.userRepository.existsByUsername(registerFormDto.getUsername())) {
             return new ResponseEntity<>("Username is taken.", HttpStatus.BAD_REQUEST);
         }
 
-        if (this.userRepository.existsByEmail(registerDto.getEmail())) {
+        if (this.userRepository.existsByEmail(registerFormDto.getEmail())) {
             return new ResponseEntity<>("Email is taken.", HttpStatus.BAD_REQUEST);
         }
 
         Role role = this.roleRepository.findByName("USER").get();
 
         UserEntity user = new UserEntity();
-        user.setUsername(registerDto.getUsername());
-        user.setEmail(registerDto.getEmail());
-        user.setPassword(this.passwordEncoder.encode(registerDto.getPassword()));
+        user.setUsername(registerFormDto.getUsername());
+        user.setEmail(registerFormDto.getEmail());
+        user.setPassword(this.passwordEncoder.encode(registerFormDto.getPassword()));
         user.setRoles(Collections.singletonList(role));
 
         this.userRepository.save(user);
-        return new ResponseEntity<>("Successfully registered new user.", HttpStatus.OK);
+        return new ResponseEntity<>(new RegisterResponseDto(registerFormDto.getUsername(), registerFormDto.getEmail()), HttpStatus.OK);
     }
 
-    public AuthResponseDto login(LoginDto loginDto) {
+    public AuthResponseDto login(LoginFormDto loginFormDto) {
         UserEntity user = this.userRepository
-                .findByUsername(loginDto.getUsername())
+                .findByUsername(loginFormDto.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found."));
 
-        if (!this.passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
+        if (!this.passwordEncoder.matches(loginFormDto.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("Incorrect username or password.");
         }
 
         Authentication authentication = this.authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
+                .authenticate(new UsernamePasswordAuthenticationToken(loginFormDto.getUsername(), loginFormDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtGenerator.generateToken(authentication);
         return new AuthResponseDto(token);

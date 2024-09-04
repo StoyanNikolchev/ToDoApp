@@ -1,6 +1,7 @@
 package com.nikolchev98.todoapp.services;
 
-import com.nikolchev98.todoapp.domain.dtos.TaskDto;
+import com.nikolchev98.todoapp.domain.dtos.imports.TaskImportDto;
+import com.nikolchev98.todoapp.domain.dtos.responses.TaskResponseDto;
 import com.nikolchev98.todoapp.domain.entities.TaskEntity;
 import com.nikolchev98.todoapp.domain.entities.UserEntity;
 import com.nikolchev98.todoapp.domain.views.TaskView;
@@ -35,14 +36,16 @@ public class TaskService {
     }
 
     @Transactional
-    public ResponseEntity<String> createTask(TaskDto taskDto, String username) {
-        TaskEntity taskEntity = this.modelMapper.map(taskDto, TaskEntity.class);
+    public ResponseEntity<TaskResponseDto> createTask(TaskImportDto taskImportDto, String username) {
+        TaskEntity taskEntity = this.modelMapper.map(taskImportDto, TaskEntity.class);
         UserEntity userEntity = this.userRepository.findByUsername(username).get();
 
         taskEntity.setOwner(userEntity);
         taskEntity.setDone(false);
         this.taskRepository.save(taskEntity);
-        return new ResponseEntity<>("Task created successfully.", HttpStatus.CREATED);
+
+        TaskResponseDto taskResponse = this.modelMapper.map(taskImportDto, TaskResponseDto.class);
+        return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
     }
 
     @Transactional

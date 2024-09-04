@@ -1,4 +1,4 @@
-package com.nikolchev98.todoapp.domain.dtos;
+package com.nikolchev98.todoapp.domain.dtos.responses;
 
 import lombok.Data;
 

@@ -1,9 +1,9 @@
-package com.nikolchev98.todoapp.domain.dtos;
+package com.nikolchev98.todoapp.domain.dtos.imports;
 
 import lombok.Data;
 
 @Data
-public class LoginDto {
+public class LoginFormDto {
     private String username;
     private String password;
 }

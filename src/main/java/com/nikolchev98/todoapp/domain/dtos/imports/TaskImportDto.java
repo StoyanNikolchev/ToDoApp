@@ -1,11 +1,11 @@
-package com.nikolchev98.todoapp.domain.dtos;
+package com.nikolchev98.todoapp.domain.dtos.imports;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class TaskDto {
+public class TaskImportDto {
 
     @NotNull
     @Size(min = 5, max = 30)
