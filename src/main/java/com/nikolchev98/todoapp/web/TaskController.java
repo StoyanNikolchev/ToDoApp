@@ -39,7 +39,7 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createTask(@RequestBody @Valid TaskImportDto taskImportDto, Principal principal, BindingResult bindingResult) {
+    public ResponseEntity<?> createTask(@RequestBody @Valid TaskImportDto taskImportDto, BindingResult bindingResult, Principal principal) {
         if (bindingResult.hasErrors()) {
 
             Map<String, String> errors = new HashMap<>();
