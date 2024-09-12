@@ -16,7 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class TaskService {
@@ -45,9 +46,11 @@ public class TaskService {
 
         taskEntity.setOwner(userEntity);
         taskEntity.setDone(false);
+        taskEntity.setCreated(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         this.taskRepository.save(taskEntity);
 
         TaskResponseDto taskResponse = this.modelMapper.map(taskImportDto, TaskResponseDto.class);
+        taskResponse.setCreated(taskEntity.getCreated());
         return new ResponseEntity<>(taskResponse, HttpStatus.CREATED);
     }
 
@@ -63,6 +66,7 @@ public class TaskService {
         taskEntity.setTitle(taskView.getTitle());
         taskEntity.setText(taskView.getText());
         taskEntity.setDone(taskView.getDone());
+        taskEntity.setDeadline(taskView.getDeadline());
         this.taskRepository.save(taskEntity);
 
         return new ResponseEntity<>("Task updated successfully.", HttpStatus.OK);

@@ -6,6 +6,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
 @Table(name = "tasks")
@@ -22,4 +24,10 @@ public class TaskEntity extends BaseEntity {
 
     @ManyToOne
     private UserEntity owner;
+
+    @Column(nullable = false)
+    private LocalDateTime created;
+
+    @Column
+    private LocalDateTime deadline;
 }
