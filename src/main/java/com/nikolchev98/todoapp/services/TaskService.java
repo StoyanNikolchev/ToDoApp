@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.stream.Collectors;
+
 @Service
 public class TaskService {
 
@@ -30,9 +32,10 @@ public class TaskService {
         this.userRepository = userRepository;
     }
 
-    public ResponseEntity<Page<TaskEntity>> getUserTasks(String username, Pageable pageable) {
-        Page<TaskEntity> tasksPage = this.taskRepository.findAllByOwnerUsername(username, pageable);
-        return new ResponseEntity<>(tasksPage, HttpStatus.OK);
+    public ResponseEntity<Page<TaskView>> getUserTasks(String username, Pageable pageable) {
+        Page<TaskEntity> taskEntitiesPage = this.taskRepository.findAllByOwnerUsername(username, pageable);
+        Page<TaskView> taskViewsPage = taskEntitiesPage.map(entity -> this.modelMapper.map(entity, TaskView.class));
+        return new ResponseEntity<>(taskViewsPage, HttpStatus.OK);
     }
 
     @Transactional
@@ -50,7 +53,7 @@ public class TaskService {
 
     @Transactional
     public ResponseEntity<String> updateTask(TaskView taskView, String username) {
-        TaskEntity taskEntity = this.taskRepository.findByIdAndOwnerUsername(taskView.getUuid(), username)
+        TaskEntity taskEntity = this.taskRepository.findByIdAndOwnerUsername(taskView.getId(), username)
                 .orElse(null);
 
         if (taskEntity == null) {
@@ -67,7 +70,7 @@ public class TaskService {
 
     @Transactional
     public ResponseEntity<String> deleteTask(TaskView taskView, String username) {
-        TaskEntity taskEntity = this.taskRepository.findByIdAndOwnerUsername(taskView.getUuid(), username)
+        TaskEntity taskEntity = this.taskRepository.findByIdAndOwnerUsername(taskView.getId(), username)
                 .orElse(null);
 
         if (taskEntity == null) {
