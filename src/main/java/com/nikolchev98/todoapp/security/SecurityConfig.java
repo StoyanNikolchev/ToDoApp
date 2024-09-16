@@ -1,5 +1,6 @@
 package com.nikolchev98.todoapp.security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,8 +34,13 @@ public class SecurityConfig {
                 .exceptionHandling(handling -> handling.authenticationEntryPoint(entryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> request.requestMatchers("api/auth/**").permitAll()
-                        .requestMatchers("api/tasks").authenticated());
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .logout(logout ->
+                        logout.logoutUrl("/api/auth/logout")
+                                .logoutSuccessHandler((request, response, authentication) -> {
+                                    response.setStatus(HttpServletResponse.SC_OK);
+                                }));
         return http.build();
     }
 
