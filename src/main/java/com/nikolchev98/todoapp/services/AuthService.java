@@ -22,6 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class AuthService {
@@ -41,13 +43,18 @@ public class AuthService {
     }
 
     public ResponseEntity<?> register(RegisterFormDto registerFormDto) {
+        Map<String, String> errors = new HashMap<>();
 
         if (this.userRepository.existsByUsername(registerFormDto.getUsername())) {
-            return new ResponseEntity<>("Username is taken.", HttpStatus.BAD_REQUEST);
+            errors.put("username", "Username is taken.");
         }
 
         if (this.userRepository.existsByEmail(registerFormDto.getEmail())) {
-            return new ResponseEntity<>("Email is taken.", HttpStatus.BAD_REQUEST);
+            errors.put("email", "Email is taken.");
+        }
+
+        if (!errors.isEmpty()) {
+            return ResponseEntity.badRequest().body(errors);
         }
 
         Role role = this.roleRepository.findByName("USER").get();

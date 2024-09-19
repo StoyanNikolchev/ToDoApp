@@ -1,4 +1,4 @@
-package com.nikolchev98.todoapp.web;
+package com.nikolchev98.todoapp.web.restControllers;
 
 import com.nikolchev98.todoapp.domain.dtos.responses.AuthResponseDto;
 import com.nikolchev98.todoapp.domain.dtos.imports.LoginFormDto;
@@ -22,12 +22,12 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-public class AuthController {
+public class AuthRESTController {
 
     private final AuthService authService;
 
     @Autowired
-    public AuthController(AuthService authService, AuthenticationManager authenticationManager, JWTGenerator jwtGenerator) {
+    public AuthRESTController(AuthService authService, AuthenticationManager authenticationManager, JWTGenerator jwtGenerator) {
         this.authService = authService;
     }
 
@@ -42,7 +42,7 @@ public class AuthController {
                 errors.put(error.getField(), error.getDefaultMessage());
             }
 
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(errors);
         }
 
         return this.authService.register(registerFormDto);

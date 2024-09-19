@@ -1,4 +1,4 @@
-package com.nikolchev98.todoapp.web;
+package com.nikolchev98.todoapp.web.restControllers;
 
 import com.nikolchev98.todoapp.domain.dtos.imports.TaskImportDto;
 import com.nikolchev98.todoapp.domain.views.TaskView;
@@ -21,11 +21,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tasks")
-public class TaskController {
+public class TaskRESTController {
     private final TaskService taskService;
 
     @Autowired
-    public TaskController(TaskService taskService) {
+    public TaskRESTController(TaskService taskService) {
         this.taskService = taskService;
     }
 
