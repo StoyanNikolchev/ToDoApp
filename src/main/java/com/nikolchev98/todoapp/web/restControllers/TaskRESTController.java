@@ -34,7 +34,7 @@ public class TaskRESTController {
     public ResponseEntity<Page<TaskView>> getUserTasks(Principal principal,
                                                        @RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size,
-                                                       @RequestParam(defaultValue = "id") String sort) {
+                                                       @RequestParam(defaultValue = "deadline") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort).ascending());
         return this.taskService.getUserTasks(principal.getName(), pageable);
     }
