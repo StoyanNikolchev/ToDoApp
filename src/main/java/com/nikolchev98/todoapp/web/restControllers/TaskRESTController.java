@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -58,7 +59,7 @@ public class TaskRESTController {
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deleteTask(@RequestBody TaskView taskView, Principal principal) {
-        return this.taskService.deleteTask(taskView, principal.getName());
+    public ResponseEntity<String> deleteTask(@RequestBody UUID taskID, Principal principal) {
+        return this.taskService.deleteTask(taskID, principal.getName());
     }
 }

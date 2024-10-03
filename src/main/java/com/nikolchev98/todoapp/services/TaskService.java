@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 @Service
 public class TaskService {
@@ -73,8 +74,8 @@ public class TaskService {
     }
 
     @Transactional
-    public ResponseEntity<String> deleteTask(TaskView taskView, String username) {
-        TaskEntity taskEntity = this.taskRepository.findByIdAndOwnerUsername(taskView.getId(), username)
+    public ResponseEntity<String> deleteTask(UUID taskID, String username) {
+        TaskEntity taskEntity = this.taskRepository.findByIdAndOwnerUsername(taskID, username)
                 .orElse(null);
 
         if (taskEntity == null) {
