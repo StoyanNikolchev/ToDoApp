@@ -14,4 +14,5 @@ public interface TaskRepository extends JpaRepository<TaskEntity, UUID> {
 
     Page<TaskEntity> findAllByOwnerUsername(String username, Pageable pageable);
     Optional<TaskEntity> findByIdAndOwnerUsername(UUID id, String username);
+    void deleteAllByDoneIsTrue();
 }

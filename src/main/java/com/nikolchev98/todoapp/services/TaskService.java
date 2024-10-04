@@ -85,4 +85,8 @@ public class TaskService {
         this.taskRepository.delete(taskEntity);
         return new ResponseEntity<>("Task deleted successfully.", HttpStatus.OK);
     }
+
+    public void deleteFinishedTasks() {
+        this.taskRepository.deleteAllByDoneIsTrue();
+    }
 }
