@@ -4,6 +4,7 @@ import com.nikolchev98.todoapp.domain.dtos.imports.TaskImportDto;
 import com.nikolchev98.todoapp.domain.dtos.responses.TaskResponseDto;
 import com.nikolchev98.todoapp.domain.entities.TaskEntity;
 import com.nikolchev98.todoapp.domain.entities.UserEntity;
+import com.nikolchev98.todoapp.domain.enums.Priority;
 import com.nikolchev98.todoapp.domain.views.TaskView;
 import com.nikolchev98.todoapp.repositories.TaskRepository;
 import com.nikolchev98.todoapp.repositories.UserRepository;
@@ -47,6 +48,13 @@ public class TaskService {
 
         taskEntity.setOwner(userEntity);
         taskEntity.setDone(false);
+
+        try {
+            taskEntity.setPriority(Priority.valueOf(taskImportDto.getPriority()));
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         taskEntity.setCreated(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         this.taskRepository.save(taskEntity);
 
@@ -68,8 +76,14 @@ public class TaskService {
         taskEntity.setText(taskView.getText());
         taskEntity.setDone(taskView.getDone());
         taskEntity.setDeadline(taskView.getDeadline());
-        this.taskRepository.save(taskEntity);
 
+        try {
+            taskEntity.setPriority(Priority.valueOf(taskView.getPriority()));
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return new ResponseEntity<>("Invalid priority type.", HttpStatus.BAD_REQUEST);
+        }
+
+        this.taskRepository.save(taskEntity);
         return new ResponseEntity<>("Task updated successfully.", HttpStatus.OK);
     }
 

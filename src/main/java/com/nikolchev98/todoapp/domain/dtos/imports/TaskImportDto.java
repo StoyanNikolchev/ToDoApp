@@ -20,4 +20,7 @@ public class TaskImportDto {
 
     @Future(message = "The deadline must be in the future.")
     private LocalDateTime deadline;
+
+    @NotNull
+    private String priority;
 }

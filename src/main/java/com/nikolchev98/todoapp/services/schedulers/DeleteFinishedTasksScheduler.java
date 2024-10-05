@@ -15,7 +15,7 @@ public class DeleteFinishedTasksScheduler {
         this.taskService = taskService;
     }
 
-    @Scheduled(cron = "0 0 * * 0")
+    @Scheduled(cron = "0 0 0 * * 0")
     public void deleteFinishedTasks() {
         this.taskService.deleteFinishedTasks();
     }

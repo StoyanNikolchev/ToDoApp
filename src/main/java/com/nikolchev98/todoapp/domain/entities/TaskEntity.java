@@ -1,9 +1,7 @@
 package com.nikolchev98.todoapp.domain.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.nikolchev98.todoapp.domain.enums.Priority;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -30,4 +28,7 @@ public class TaskEntity extends BaseEntity {
 
     @Column
     private LocalDateTime deadline;
+
+    @Enumerated(value = EnumType.STRING)
+    private Priority priority;
 }

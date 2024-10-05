@@ -16,4 +16,5 @@ public class TaskView {
     private String text;
     private Boolean done;
     private LocalDateTime deadline;
+    private String priority;
 }
