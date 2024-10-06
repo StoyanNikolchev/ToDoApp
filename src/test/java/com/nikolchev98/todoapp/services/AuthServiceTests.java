@@ -1,6 +1,8 @@
 package com.nikolchev98.todoapp.services;
 
+import com.nikolchev98.todoapp.domain.dtos.imports.LoginFormDto;
 import com.nikolchev98.todoapp.domain.dtos.imports.RegisterFormDto;
+import com.nikolchev98.todoapp.domain.dtos.responses.AuthResponseDto;
 import com.nikolchev98.todoapp.domain.dtos.responses.RegisterResponseDto;
 import com.nikolchev98.todoapp.domain.entities.Role;
 import com.nikolchev98.todoapp.domain.entities.UserEntity;
@@ -15,15 +17,19 @@ import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.Authentication;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 public class AuthServiceTests {
@@ -124,5 +130,57 @@ public class AuthServiceTests {
         assertEquals("test@test.com", registerResponseDto.getEmail());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    public void givenNonExistentUsername_login_shouldThrowUsernameNotFoundException() {
+        //ARRANGE
+        LoginFormDto loginFormDto = new LoginFormDto("nonExistentUser", "password");
+        when(userRepository.findByUsername(loginFormDto.getUsername())).thenReturn(Optional.empty());
+
+        //ACT & ASSERT
+        assertThrows(UsernameNotFoundException.class, () -> authService.login(loginFormDto));
+    }
+
+    @Test
+    public void givenIncorrectPassword_login_shouldThrowBadCredentialsException() {
+        //ARRANGE
+        LoginFormDto form = new LoginFormDto("existingUser", "wrongPassword");
+        UserEntity user = new UserEntity();
+        user.setPassword("encodedCorrectPassword");
+
+        when(userRepository.findByUsername(form.getUsername())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(form.getPassword(), user.getPassword())).thenReturn(false);
+
+        //ACT & ASSERT
+        assertThrows(BadCredentialsException.class, () -> authService.login(form));
+    }
+
+    @Test
+    public void testLogin_Success() {
+        //ARRANGE
+        LoginFormDto loginFormDto = new LoginFormDto("existingUser", "correctPassword");
+
+        UserEntity user = new UserEntity();
+        user.setUsername(loginFormDto.getUsername());
+        user.setPassword("encodedCorrectPassword");
+
+        when(userRepository.findByUsername(loginFormDto.getUsername())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(loginFormDto.getPassword(), user.getPassword())).thenReturn(true);
+
+        Authentication authentication = mock(Authentication.class);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authentication);
+        when(jwtGenerator.generateToken(authentication)).thenReturn("generatedJwtToken");
+
+        //ACT
+        AuthResponseDto response = authService.login(loginFormDto);
+
+        //ASSERT
+        assertNotNull(response);
+        assertEquals("generatedJwtToken", response.getToken());
+
+        verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(jwtGenerator, times(1)).generateToken(authentication);
+        assertEquals(authentication, SecurityContextHolder.getContext().getAuthentication());
     }
 }
