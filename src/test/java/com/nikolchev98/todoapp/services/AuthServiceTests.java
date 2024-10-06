@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -62,7 +63,8 @@ public class AuthServiceTests {
         ResponseEntity<?> response = authService.register(registerFormDto);
 
         //ASSERT
-        assertEquals("Username is taken.", response.getBody());
+        Map<String, String> errors = (Map<String, String>) response.getBody();
+        assertEquals("Username is taken.", errors.get("username"));
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -78,7 +80,8 @@ public class AuthServiceTests {
         ResponseEntity<?> response = authService.register(registerFormDto);
 
         //ASSERT
-        assertEquals("Email is taken.", response.getBody());
+        Map<String, String> errors = (Map<String, String>) response.getBody();
+        assertEquals("Email is taken.", errors.get("email"));
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
